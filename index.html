@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIKE.SHOP.AZ</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #000000;
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* HEADER */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #000;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            height: 70px; 
+            border-bottom: 1px solid #222;
+        }
+
+        .header-logo img { height: 55px; width: auto; }
+        .header-title { 
+            font-size: 1rem; font-weight: bold; 
+            position: absolute; left: 50%; transform: translateX(-50%);
+        }
+        .menu-icon { font-size: 1.8rem; cursor: pointer; }
+
+        /* SEARCH */
+        .search-container {
+            position: sticky; top: 70px; background-color: #000;
+            padding: 10px 15px; z-index: 99; border-bottom: 1px solid #222;
+        }
+        .search-input {
+            width: 100%; padding: 12px; border-radius: 10px;
+            border: 1px solid #333; background-color: #1a1a1a; color: white;
+            box-sizing: border-box; 
+        }
+
+        /* MENU */
+        #main-menu {
+            display: none; background-color: #111; position: fixed;
+            top: 70px; width: 100%; height: calc(100vh - 70px);
+            z-index: 200; border-top: 1px solid #333;
+        }
+        .menu-item {
+            display: flex; align-items: center; padding: 20px;
+            color: white; text-decoration: none; border-bottom: 1px solid #222;
+        }
+        .menu-item i { margin-right: 15px; width: 20px; text-align: center; }
+
+        /* PRODUCT GRID */
+        .product-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 15px;
+        }
+        .product-card { background-color: #000; }
+        .image-container {
+            width: 100%; aspect-ratio: 1/1; background-color: #111;
+            border-radius: 6px; overflow: hidden;
+            position: relative;
+        }
+        .product-image { width: 100%; height: 100%; object-fit: cover; }
+        .card-info-row { display: flex; justify-content: space-between; padding: 10px 5px; }
+        .grid-price { font-weight: bold; }
+        .heart-icon { font-size: 1.3rem; color: #666; }
+        .heart-icon.active { color: #ff0000; }
+
+        /* LOAD MORE BUTTON */
+        .load-more-container {
+            text-align: center;
+            padding: 20px;
+            display: none; 
+        }
+        .load-more-btn {
+            background-color: #222;
+            color: #fff;
+            border: 1px solid #444;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .load-more-btn:hover { background-color: #333; }
+
+        /* MODAL */
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #000; z-index: 1000; overflow-y: auto; flex-direction: column;
+        }
+        .modal-top-bar { 
+            display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; 
+            background: #000; position: sticky; top: 0; z-index: 1001;
+        }
+        .close-btn { font-size: 2.2rem; cursor: pointer; }
+
+        .slider-wrapper {
+            position: relative; width: 100%; background-color: #000; 
+            display: flex; align-items: center; justify-content: center;
+            min-height: 350px; 
+        }
+        .modal-image { max-width: 100%; max-height: 80vh; object-fit: contain; }
+        .image-counter {
+            position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.7);
+            padding: 5px 12px; border-radius: 20px; font-size: 0.8rem;
+        }
+
+        .modal-content { padding: 20px; flex-grow: 1; }
+        .modal-name { font-size: 1.5rem; font-weight: bold; margin-bottom: 15px; }
+        .modal-details { color: #ccc; line-height: 1.6; margin-bottom: 30px; white-space: pre-wrap; }
+
+        .order-btn {
+            background-color: #fff; color: #000; text-align: center; padding: 18px; 
+            border-radius: 50px; text-decoration: none; font-weight: bold; display: block; 
+            font-size: 1.1rem; margin-bottom: 30px;
+        }
+
+        /* FOOTER */
+        footer {
+            background-color: #111;
+            padding: 30px 20px;
+            text-align: center;
+            border-top: 1px solid #222;
+            margin-top: auto; 
+        }
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin-bottom: 20px;
+        }
+        .social-link {
+            color: #fff;
+            font-size: 1.8rem;
+            transition: color 0.3s;
+        }
+        .social-link:hover { color: #ccc; }
+        
+        .fa-whatsapp { color: #25D366; }
+        .fa-instagram { color: #E1306C; }
+        .fa-envelope { color: #EA4335; }
+
+        .copyright { color: #666; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-logo"><img src="https://i.ibb.co/3yZW23jr/file-00000000175c722fb281a93f97e3f54f.png"></div>
+        <div class="header-title">BIKE.SHOP.AZ</div>
+        <div class="menu-icon" onclick="toggleMenu()"><i class="fas fa-bars"></i></div>
+    </header>
+
+    <div class="search-container">
+        <input type="text" id="searchInput" class="search-input" placeholder="Axtarış...">
+    </div>
+
+    <nav id="main-menu">
+        <a href="#" class="menu-item" onclick="showPage('home')"><i class="fas fa-home"></i> Əsas səhifə</a>
+        <a href="#" class="menu-item" onclick="showPage('wishlist')"><i class="fas fa-heart"></i> İstək siyahım</a>
+        <a href="https://wa.me/994552345510" class="menu-item"><i class="fab fa-whatsapp"></i> Əlaqə</a>
+    </nav>
+
+    <div class="product-grid" id="product-container"></div>
+
+    <div id="load-more-wrapper" class="load-more-container">
+        <button class="load-more-btn" onclick="loadMoreItems()">DAHA ÇOX GÖSTƏR</button>
+    </div>
+
+    <footer>
+        <div class="social-icons">
+            <a href="mailto:bikeshopaz1@gmail.com" class="social-link"><i class="fas fa-envelope"></i></a>
+            <a href="https://wa.me/994552345510" class="social-link" target="_blank"><i class="fab fa-whatsapp"></i></a>
+            <a href="https://www.instagram.com/bike.shop.az?igsh=Nm14MXJ0OW14MzFh" class="social-link" target="_blank"><i class="fab fa-instagram"></i></a>
+        </div>
+        <div class="copyright">&copy; 2026 BIKE.SHOP.AZ. Bütün hüquqlar qorunur.</div>
+    </footer>
+
+    <div id="product-modal" class="modal">
+        <div class="modal-top-bar">
+            <div class="close-btn" onclick="closeProductModal()">&times;</div>
+            <div class="header-title" style="position:static; transform:none;">Məhsul</div>
+            <div style="width:30px;"></div>
+        </div>
+        <div class="slider-wrapper" id="swipe-area">
+            <div class="image-counter" id="img-counter">1 / 1</div>
+            <img id="modal-img" src="" class="modal-image">
+        </div>
+        <div class="modal-content">
+            <div id="modal-name" class="modal-name"></div>
+            <div id="modal-details" class="modal-details"></div>
+            <a id="modal-whatsapp-btn" href="#" class="order-btn">WHATSAPP İLƏ SİFARİŞ</a>
+        </div>
+    </div>
+
+    <script>
+        const products = [
+            { 
+                id: 118, 
+                name: "Tektro HD-M275 Hidravlik Əyləc Seti", 
+                price: 95.00, 
+                images: [
+                    "https://i.ibb.co/7dtVvy32/Screenshot-20260213-001228-Instagram.jpg",
+                    "https://i.ibb.co/ZRnk3MZd/Screenshot-20260213-001218-Instagram.jpg"
+                ], 
+                details: "🔴 Tektro HD-M275 Hidravlik Əyləc Seti\n🔹 Brend: Tektro\n🔹 Model: HD-M275\n🔹 Sistem: Açıq sistem, 2 Porşenli (2-Piston)\n🔹 İşləmə prinsipi: Hidravlik (Mineral Yağ)\n🔹 Qol ölçüsü: 2-barmaq (2-Finger) – qısa və rahat tutuş\n🔹 Material: Alüminium ərintisi (qol və suport)\n🔹 Uyğunluq: MTB, Trekking və Şəhər velosipedləri\n\n⚙️ Texniki Detallar:\n🔹 Yağ növü: Mineral Oil (Qeyri-korroziv, servisi asan)\n🔹 (Caliper): Döymə alüminium, avtomatik mərkəzləşmə\n🔹 Nakladka (Qəlib): E10.11 (Organic / Resin) – Səssiz işləyir və yaxşı tutur\n🔹 Tənzimləmə: Qol məsafəsi (Reach adjustment) alətlə tənzimlənir\n\n🔹 Kabel (Şlank) uzunluğu:\n🔹 Ön: ~800 - 900 mm\n🔹 Arxa: ~1450 - 1500 mm\n\n⚖️ Çəki:\n🔹 Ön: ~287 - 290 qram\n🔹 Arxa: ~307 - 310 qram\n🔹 Cüt (Set): Təxminən 600 qram\n\n✅ Qeyd: Başlanğıc və orta səviyyə üçün ideal, uzunömürlü və asan servis olunan modeldir.\n✅ Qeyd: 1 həftə istifadə olunub yenidən seçilmir\n❌ Tək satılmır ❌\n📦 Çatdırılma var ✅\n💵 Qiymət: 95 AZN (Cüt)" 
+            },
+            { 
+                id: 117, 
+                name: "Rockshox 35 Coil (120mm)", 
+                price: 149.00, 
+                images: [
+                    "https://i.ibb.co/FkfQQpqt/Screenshot-20260213-000010-Instagram.jpg",
+                    "https://i.ibb.co/ZpJ2pBqn/Screenshot-20260212-235958-Instagram.jpg"
+                ], 
+                details: "Made in America 🇺🇸\nMarka: ROCKSHOX\nModel: 35\nÖlçü: 29 / 27.5\nTravel: 120mm\nSistem: COiL (Yaylı)\nAxle: Boost 15x110\nTravel turba qalınığı: 35mm 👍\nÇəkisi: 2.7kg\nQiymət: 149 AZN\nÇatdırılma var ✅" 
+            },
+             { 
+                id: 116, 
+                name: "Rockshox Judy (Hava Amortizatoru)", 
+                price: 330.00, 
+                images: [
+                    "https://i.ibb.co/TBWJQnGy/Screenshot-20260212-235507-Instagram.jpg",
+                    "https://i.ibb.co/8gjcZxz3/Screenshot-20260212-235450-Instagram.jpg"
+                ], 
+                details: "Made in America 🇺🇸\nMarka: Rockshox\nModel: Judy\nÖlçü: 29 / 27.5\nTravel: 120mm\nHava (AIR)\nThru Axle: 15x110\nÇəkisi: 1787g\nÜst boru diametr: 30mm\nOffset: 51mm\nQiymət: 330 AZN (Dəyişə bilər)\nÇatdırılma var ✅" 
+            },
+            { 
+                id: 115, 
+                name: "Crankbrothers Stamp 1 Pedallar", 
+                price: 69.00, 
+                images: [
+                    "https://i.ibb.co/LVWJRSs/Screenshot-20260212-234935-Instagram.jpg",
+                    "https://i.ibb.co/kV1sHjqq/Screenshot-20260212-234921-Instagram.jpg"
+                ], 
+                details: "Made in America 🇺🇸\nMarka: Crankbrothers\nModel: Stamp 1\nMaterial:\nSpindle: Forged scm 435 chromoly steel\nBody: Composite\nÖlçü: 100mm x 100mm\nİstifadə: All Mountain, Enduro, Freeride, Downhill\nÇəkisi: 299g (ədəd)\nQiymət: 69 AZN\nÇatdırılma var ✅" 
+            },
+            { 
+                id: 114, 
+                name: "Onza Kamer 26 (2.10-2.60)", 
+                price: 10.00, 
+                images: [
+                    "https://i.ibb.co/xqyHLzzr/Screenshot-20260212-233807-Instagram.jpg",
+                    "https://i.ibb.co/4wfzKJbG/Screenshot-20260212-233803-Instagram.jpg"
+                ], 
+                details: "Marka: Onza\nÖlçü: 26\nEn: 2.10 — 2.60 kimi dəstəkləyir (2.80 taxmaq olar)\nÇəkisi: 200g\nMəhdud saydadır, almağa tələsin ‼️\nQiymət: 10 AZN\nÇatdırılma var ✅" 
+            },
+            { 
+                id: 113, 
+                name: "Continental Set (Kamer+Çexol+Qaşıq)", 
+                price: 17.00, 
+                images: [
+                    "https://i.ibb.co/3ttF5v5/Screenshot-20260212-233315-Instagram.jpg",
+                    "https://i.ibb.co/Zp2LLXMP/Screenshot-20260212-233300-Instagram.jpg"
+                ], 
+                details: "Made in Almaniya 🇩🇪\nMarka: Continental\nModel: S42\nKamer boğazı: SV 42mm\n\n🎁 ÇEXOL + KAMER + QAŞIQ 🎁\n\nÖlçülər və Qiymətlər:\n🔹 27.5 (1.75-2.5) — 17 AZN\n🔹 28 (20c-28c) — 17 AZN\n🔹 29 (1.75-2.5) — 19 AZN\n\nMəhdud saydadır ‼️\nÇatdırılma var ✅" 
+            },
+            { 
+                id: 112, 
+                name: "SRAM Centerline 220mm Rotor", 
+                price: 59.00, 
+                images: [
+                    "https://i.ibb.co/hRPrFLw4/Screenshot-20260212-232813-Instagram.jpg",
+                    "https://i.ibb.co/kV2r1xjs/Screenshot-20260212-232802-Instagram.jpg"
+                ], 
+                details: "Made in America 🇺🇸\nMarka: Sram\nÖlçü: 220mm\n6 bolt\nSRAM Centerline Rounded 6-bolt Disc Rotor\nThe Sram CenterLine design provides a smooth, consistent, and quiet running braking surface.\nRounded edges make for easier wheel installs and are UCI-compliant.\nÇatdırılma var ✅" 
+            },
+            { 
+                id: 111, 
+                name: "Ördək (Velosiped Aksesuarı)", 
+                price: 5.00, 
+                images: ["https://i.ibb.co/35t4Nqdz/Screenshot-20260212-062138-Instagram.jpg"], 
+                details: "Məhsul: Velosiped üçün Ördək\nQiymət: 5 AZN\nÇatdırılma var ✅" 
+            },
+            { 
+                id: 110, 
+                name: "KMC X8 Zəncir (6-8 Sürət)", 
+                price: 45.00, 
+                images: [
+                    "https://i.ibb.co/RGpM0wzN/Screenshot-20260212-055617-Instagram.jpg",
+                    "https://i.ibb.co/LDcm20sS/Screenshot-20260212-055606-Instagram.jpg"
+                ], 
+                details: "Marka: KMC\nModel: X8\nUyğunluq: MTB, Trekking, Road\nSürət: 6, 7, 8 Speed\nÖzəllik: Zamoklu\nUzunluq: 114 links\nÇəki: 324g\nTam Orijinal məhsul ‼️\nÇatdırılma var ✅" 
+            },
+            { 
+                id: 109, 
+                name: "Maxxis Recon 29x2.60", 
+                price: 79.00, 
+                images: [
+                    "https://i.ibb.co/cS4gczWL/Screenshot-20260212-055147-Instagram.jpg",
+                    "https://i.ibb.co/xqGgFrGt/Screenshot-20260212-055108-Instagram.jpg"
+                ], 
+                details: "Marka: Maxxis\nModel: Recon\nÖlçü: 29 x 2.60\nTubeless Ready\nAğırlıq: 920g\nOriginal Maxxis 🇩🇪\nMəhdud saydadır\nÇatdırılma var ✅" 
+            },
+            { id: 108, name: "Shimano Deore CS-M5100 Kaset", price: 139.00, images: ["https://i.ibb.co/GfrSz5Dj/Screenshot-20260212-013025-Instagram.jpg"], details: "Made in Japan 🇯🇵\nBrend: Shimano\nModel: CS-M5100\nSürət: 11 Sürət\nDişlər: 11-51T\nÇatdırılma var ✅" },
+            { id: 107, name: "GHOST Seatpost", price: 25.00, images: ["https://i.ibb.co/JwK7bfg2/Screenshot-20260212-012423-Instagram.jpg", "https://i.ibb.co/zTJrkNh7/Screenshot-20260212-012417-Instagram.jpg"], details: "Made in Almaniya 🇩🇪\nMarka: Ghost\nUzunluq: 400mm\nDiametr: 31.6mm\nÇatdırılma var ✅" },
+            { id: 106, name: "GHOST GND 51 Sükan", price: 39.00, images: ["https://i.ibb.co/dwGkZwgD/Screenshot-20260212-005109-Instagram.jpg", "https://i.ibb.co/7D6D70r/Screenshot-20260212-005009-Instagram.jpg"], details: "Made in Almaniya 🇩🇪\nMarka: Ghost\nUzunluq: 780mm\nDiametr: 31.8mm\nÇatdırılma var ✅" },
+            { id: 105, name: "Brigadier VZR MTB Helmet", price: 39.00, images: ["https://i.ibb.co/fzrCt8hJ/Screenshot-20260212-003526-Instagram.jpg", "https://i.ibb.co/Q7sJwg4t/Screenshot-20260212-003637-Instagram.jpg"], details: "Marka: Brigadier\nModel: VZR\nÖlçü: M - L\nQiymət: 39 AZN\nÇatdırılma var" },
+            { id: 104, name: "Reverse Components Saddle", price: 49.00, images: ["https://i.ibb.co/9mwB4wRn/Screenshot-20260212-002225-Wink.jpg", "https://i.ibb.co/XfWT9Yd1/quality-restoration-20260212002033230.jpg"], details: "Marka: Reverse Components\nMTB Yəhər\nRəng: Qara və qırmızı\nÇatdırılma var" },
+            { id: 103, name: "Cube Flat Pedal", price: 99.00, images: ["https://i.ibb.co/7dmyVg1m/Screenshot-20260211-231200-Instagram.jpg", "https://i.ibb.co/C5K74QKq/Screenshot-20260211-231243-Instagram.jpg"], details: "Made in Almaniya\nMarka: Cube\nMaterial: Aluminum\nRəng: Açıq yaşıl\nÇatdırılma var" },
+            { id: 102, name: "Fullface Dəbilqə", price: 139.00, images: ["https://i.ibb.co/NPcQ5v3/Screenshot-20260211-225632-Instagram.jpg", "https://i.ibb.co/KpXd8x7v/Screenshot-20260211-225621-Instagram.jpg"], details: "Çəki: 1420q\nRəng: Qara yaşıl\nÖlçü: M,L\nÇatdırılma var." },
+            { id: 101, name: "Velosiped Tutacağı (Grip)", price: 10.00, images: ["https://i.ibb.co/bRKRFsvg/Screenshot-20260211-213641-Instagram.jpg", "https://i.ibb.co/WWtczntK/Screenshot-20260211-213629-Instagram.jpg"], details: "Made in China\n135mm\nRəng: Qırmızı və Bənövşəyi\nÇatdırılma var" }
+        ];
+
+        let wishlist = JSON.parse(localStorage.getItem('bikeWish')) || [];
+        let displayedLimit = 6; 
+        let currentFilteredList = []; 
+
+        function init() {
+            currentFilteredList = products; 
+            renderGrid();
+        }
+
+        function renderGrid() {
+            const container = document.getElementById('product-container');
+            container.innerHTML = "";
+            const listToShow = currentFilteredList.slice(0, displayedLimit);
+            
+            listToShow.forEach(p => {
+                const isLiked = wishlist.includes(p.id);
+                const div = document.createElement('div');
+                div.className = 'product-card';
+                div.innerHTML = `
+                    <div class="image-container" onclick="openModal(${p.id})">
+                        <img src="${p.images[0]}" class="product-image">
+                    </div>
+                    <div class="card-info-row">
+                        <span class="grid-price">${p.price} AZN</span>
+                        <i class="${isLiked?'fas active':'far'} fa-heart heart-icon" onclick="toggleHeart(event, ${p.id})"></i>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+
+            const btnWrapper = document.getElementById('load-more-wrapper');
+            // Əgər siyahı limitdən çoxdursa, düyməni göstər
+            if (currentFilteredList.length > displayedLimit) {
+                btnWrapper.style.display = 'block';
+            } else {
+                btnWrapper.style.display = 'none';
+            }
+        }
+
+        function loadMoreItems() {
+            displayedLimit += 6; 
+            renderGrid();
+        }
+
+        function toggleHeart(e, id) {
+            e.stopPropagation();
+            const idx = wishlist.indexOf(id);
+            if(idx>-1) wishlist.splice(idx,1); else wishlist.push(id);
+            localStorage.setItem('bikeWish', JSON.stringify(wishlist));
+            e.target.classList.toggle('fas'); e.target.classList.toggle('far'); e.target.classList.toggle('active');
+        }
+
+        function toggleMenu() {
+            const m = document.getElementById('main-menu');
+            m.style.display = m.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function showPage(page) {
+            toggleMenu();
+            if(page === 'home') {
+                displayedLimit = 6;
+                currentFilteredList = products;
+                document.getElementById('searchInput').value = ""; // Axtarışı təmizlə
+                renderGrid();
+            } else if (page === 'wishlist') {
+                // İstək siyahısındakı ID-lərə uyğun məhsulları filterləyirik
+                currentFilteredList = products.filter(p => wishlist.includes(p.id));
+                displayedLimit = 6; // Standart limitlə başla
+                renderGrid();
+            }
+        }
+
+        let curProd = null, curImgIdx = 0;
+        function openModal(id) {
+            curProd = products.find(p => p.id === id); curImgIdx = 0;
+            updateSlider();
+            document.getElementById('modal-name').innerText = curProd.name;
+            document.getElementById('modal-details').innerText = curProd.details;
+            
+            // Format message for WhatsApp
+            const msg = `Salam, mən bu məhsulu sifariş etmək istəyirəm: ${curProd.name}`;
+            const encodedMsg = encodeURIComponent(msg);
+            document.getElementById('modal-whatsapp-btn').href = `https://wa.me/994552345510?text=${encodedMsg}`;
+            
+            document.getElementById('product-modal').style.display = 'flex';
+        }
+        function updateSlider() {
+            document.getElementById('modal-img').src = curProd.images[curImgIdx];
+            document.getElementById('img-counter').innerText = `${curImgIdx+1} / ${curProd.images.length}`;
+        }
+        function closeProductModal() { document.getElementById('product-modal').style.display = 'none'; }
+
+        let startX = 0;
+        document.getElementById('swipe-area').addEventListener('touchstart', e => startX = e.touches[0].clientX);
+        document.getElementById('swipe-area').addEventListener('touchend', e => {
+            let endX = e.changedTouches[0].clientX;
+            if(startX > endX + 50) { curImgIdx = (curImgIdx+1)%curProd.images.length; updateSlider(); }
+            if(startX < endX - 50) { curImgIdx = (curImgIdx-1+curProd.images.length)%curProd.images.length; updateSlider(); }
+        });
+
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const val = e.target.value.toLowerCase();
+            currentFilteredList = products.filter(p => p.name.toLowerCase().includes(val));
+            displayedLimit = 6; 
+            renderGrid();
+        });
+
+        init();
+    </script>
+</body>
+</html>
