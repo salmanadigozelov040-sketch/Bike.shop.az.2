@@ -33,7 +33,9 @@
             border-bottom: 1px solid #222;
         }
 
-        .header-logo img { height: 55px; width: auto; }
+        /* LOGO 20% BÖYÜDÜLDÜ (55px -> 66px) */
+        .header-logo img { height: 66px; width: auto; }
+        
         .header-title { 
             font-size: 1rem; font-weight: bold; 
             position: absolute; left: 50%; transform: translateX(-50%);
@@ -108,15 +110,21 @@
         }
         .close-btn { font-size: 2.2rem; cursor: pointer; }
 
+        /* SLIDER STİLLƏRİ (Swipe animasiyası üçün) */
         .slider-wrapper {
             position: relative; width: 100%; background-color: #000; 
-            display: flex; align-items: center; justify-content: center;
-            min-height: 350px; 
+            min-height: 350px; overflow: hidden; display: flex; align-items: center;
         }
-        .modal-image { max-width: 100%; max-height: 80vh; object-fit: contain; }
+        .image-track {
+            display: flex; align-items: center; width: 100%; height: 100%;
+            transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        .modal-image { 
+            flex: 0 0 100%; width: 100%; max-height: 80vh; object-fit: contain; 
+        }
         .image-counter {
             position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.7);
-            padding: 5px 12px; border-radius: 20px; font-size: 0.8rem;
+            padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; z-index: 10;
         }
 
         .modal-content { padding: 20px; flex-grow: 1; }
@@ -160,7 +168,7 @@
 <body>
 
     <header>
-        <div class="header-logo"><img src="https://i.ibb.co/3yZW23jr/file-00000000175c722fb281a93f97e3f54f.png"></div>
+        <div class="header-logo"><img src="https://i.ibb.co/3yZW23jr/file-00000000175c722fb281a93f97e3f54f.png" alt="Logo"></div>
         <div class="header-title">BIKE.SHOP.AZ</div>
         <div class="menu-icon" onclick="toggleMenu()"><i class="fas fa-bars"></i></div>
     </header>
@@ -198,7 +206,7 @@
         </div>
         <div class="slider-wrapper" id="swipe-area">
             <div class="image-counter" id="img-counter">1 / 1</div>
-            <img id="modal-img" src="" class="modal-image">
+            <div class="image-track" id="image-track"></div>
         </div>
         <div class="modal-content">
             <div id="modal-name" class="modal-name"></div>
@@ -209,6 +217,79 @@
 
     <script>
         const products = [
+            {
+                id: 124,
+                name: "Meroca Handbear (Sükan)",
+                price: 19.00,
+                isWhiteBg: true,
+                images: [
+                    "https://i.ibb.co/99PbRPBd/Screenshot-20260228-152852-Instagram.jpg",
+                    "https://i.ibb.co/Myn1nVzG/Screenshot-20260228-152901-Instagram.jpg"
+                ],
+                details: "Made in China 🇨🇳\nMarka: Meroca\nUzunluq: 780mm\nClamp: 31.8mm\nRise: 30mm\nÇox az işlənib Yenidən seçilmir !!\n📦 Çatdırılma var ✅\n💵 Qiymət: 19 AZN"
+            },
+            {
+                id: 123,
+                name: "Crankbrothers Stamp 1 (Göy)",
+                price: 69.00,
+                isWhiteBg: true,
+                images: [
+                    "https://i.ibb.co/YB82Xwn2/Screenshot-20260228-150938-Instagram.jpg",
+                    "https://i.ibb.co/bMmGTXFV/Screenshot-20260228-150946-Instagram-1.jpg"
+                ],
+                details: "Made in America 🇺🇸\nMarka: Crankbrothers\nModel: Stamp 1\nRəng: Ağ\n🔹 material:\nSpindle: Forged scm 435 chromoly steel\nBody: Composite\n🔹 ölçü :114mmx111mm\n🔹 All Mountain, Enduro, Freeride, Downhill\nÇəkisi: 329g ( ədəd)\n📦 Çatdırılma var ✔\n💵 Qiymət: 69 AZN"
+            },
+            {
+                id: 122,
+                name: "Enlee Mudguard",
+                price: 6.00,
+                isWhiteBg: true,
+                images: [
+                    "https://i.ibb.co/kVZyv83Y/Screenshot-20260228-145047-Instagram.jpg",
+                    "https://i.ibb.co/ZRd5nX8P/Screenshot-20260228-145100-Instagram.jpg"
+                ],
+                details: "Marka : Enlee\narxa və Ön ücün\nQiymət: 6azn\nÇatdırılma var"
+            },
+            {
+                id: 121,
+                name: "POC Kortal MTB Helmet",
+                price: 249.00,
+                isWhiteBg: true,
+                images: [
+                    "https://i.ibb.co/LDGdxn3Z/Screenshot-20260228-143935-Instagram.jpg",
+                    "https://i.ibb.co/yBnJPH49/Screenshot-20260228-143947-Instagram.jpg",
+                    "https://i.ibb.co/mVLrNzL6/Screenshot-20260228-143954-Instagram.jpg",
+                    "https://i.ibb.co/fzx72248/Screenshot-20260228-144001-Instagram.jpg"
+                ],
+                details: "Marka : Poc\nModel : Kortal\nölçü : xl-xxl( 59-62cm\nÇəkisi : 440c\nÇatdırılma var\nQiymət : 249azn"
+            },
+            {
+                id: 120,
+                name: "WTB MTB RİM",
+                price: 49.00,
+                isWhiteBg: true,
+                images: [
+                    "https://i.ibb.co/PstgVymG/Screenshot-20260228-142642-Instagram.jpg",
+                    "https://i.ibb.co/r2XkDxF7/Screenshot-20260228-142654-Instagram.jpg"
+                ],
+                details: "Məhsul adı: WTB MTB RİM\nMarka: WTB\nÖlçü :29\n32 spiça\n30mm eni ( inbet width)\nMaterial : Aluminum\nYüngül və dözümlü material\n1cüt var almağa tələsin\nQiymət : 49azn (1ədəd)\nÇatdırılma var"
+            },
+            {
+                id: 119,
+                name: "Trinx Majes Fork",
+                price: 99.00,
+                isWhiteBg: true,
+                images: [
+                    "https://i.ibb.co/rGDcJkL1/Screenshot-20260228-125538-Instagram.png",
+                    "https://i.ibb.co/4n9JC9bK/Screenshot-20260228-125545-Instagram.jpg",
+                    "https://i.ibb.co/sJNthB5P/Screenshot-20260228-125538-Instagram.jpg",
+                    "https://i.ibb.co/8gBtSmmz/Screenshot-20260228-125553-Instagram.jpg",
+                    "https://i.ibb.co/zh2Rgvhp/Screenshot-20260228-125602-Instagram.jpg",
+                    "https://i.ibb.co/QSYcm2t/Screenshot-20260228-125610-Instagram.jpg",
+                    "https://i.ibb.co/Nz3TxV5/Screenshot-20260228-125617-Instagram.jpg"
+                ],
+                details: "Ad: Rockshox Judy Fork\nMarka: Trinx\nModel: Majes\nÖlçü: 27.5/29\nTravel: 100mm\nCoil (yağ)\nQR (eksentrik)\nStraight (düz turba)\nLock-on (kilidlənə bilən)\nSərtlik tənzimlənə bilir\nMəhsul yenidir\nÇatdırılma var\nQiymət: 99 AZN"
+            },
             { 
                 id: 118, 
                 name: "Tektro HD-M275 Hidravlik Əyləc Seti", 
@@ -223,7 +304,9 @@
                 id: 117, 
                 name: "Rockshox 35 Coil (120mm)", 
                 price: 149.00, 
+                isWhiteBg: true,
                 images: [
+                    "https://i.ibb.co/LDfbsn8B/Screenshot-20260228-135646-Instagram.jpg",
                     "https://i.ibb.co/FkfQQpqt/Screenshot-20260213-000010-Instagram.jpg",
                     "https://i.ibb.co/ZpJ2pBqn/Screenshot-20260212-235958-Instagram.jpg"
                 ], 
@@ -243,9 +326,10 @@
                 id: 115, 
                 name: "Crankbrothers Stamp 1 Pedallar", 
                 price: 69.00, 
+                isWhiteBg: true,
                 images: [
-                    "https://i.ibb.co/LVWJRSs/Screenshot-20260212-234935-Instagram.jpg",
-                    "https://i.ibb.co/kV1sHjqq/Screenshot-20260212-234921-Instagram.jpg"
+                    "https://i.ibb.co/kV1sHjqq/Screenshot-20260212-234921-Instagram.jpg",
+                    "https://i.ibb.co/LVWJRSs/Screenshot-20260212-234935-Instagram.jpg"
                 ], 
                 details: "Made in America 🇺🇸\nMarka: Crankbrothers\nModel: Stamp 1\nMaterial:\nSpindle: Forged scm 435 chromoly steel\nBody: Composite\nÖlçü: 100mm x 100mm\nİstifadə: All Mountain, Enduro, Freeride, Downhill\nÇəkisi: 299g (ədəd)\nQiymət: 69 AZN\nÇatdırılma var ✅" 
             },
@@ -253,9 +337,10 @@
                 id: 114, 
                 name: "Onza Kamer 26 (2.10-2.60)", 
                 price: 10.00, 
+                isWhiteBg: true,
                 images: [
-                    "https://i.ibb.co/xqyHLzzr/Screenshot-20260212-233807-Instagram.jpg",
-                    "https://i.ibb.co/4wfzKJbG/Screenshot-20260212-233803-Instagram.jpg"
+                    "https://i.ibb.co/4wfzKJbG/Screenshot-20260212-233803-Instagram.jpg",
+                    "https://i.ibb.co/xqyHLzzr/Screenshot-20260212-233807-Instagram.jpg"
                 ], 
                 details: "Marka: Onza\nÖlçü: 26\nEn: 2.10 — 2.60 kimi dəstəkləyir (2.80 taxmaq olar)\nÇəkisi: 200g\nMəhdud saydadır, almağa tələsin ‼️\nQiymət: 10 AZN\nÇatdırılma var ✅" 
             },
@@ -263,9 +348,10 @@
                 id: 113, 
                 name: "Continental Set (Kamer+Çexol+Qaşıq)", 
                 price: 17.00, 
+                isWhiteBg: true,
                 images: [
-                    "https://i.ibb.co/3ttF5v5/Screenshot-20260212-233315-Instagram.jpg",
-                    "https://i.ibb.co/Zp2LLXMP/Screenshot-20260212-233300-Instagram.jpg"
+                    "https://i.ibb.co/Zp2LLXMP/Screenshot-20260212-233300-Instagram.jpg",
+                    "https://i.ibb.co/3ttF5v5/Screenshot-20260212-233315-Instagram.jpg"
                 ], 
                 details: "Made in Almaniya 🇩🇪\nMarka: Continental\nModel: S42\nKamer boğazı: SV 42mm\n\n🎁 ÇEXOL + KAMER + QAŞIQ 🎁\n\nÖlçülər və Qiymətlər:\n🔹 27.5 (1.75-2.5) — 17 AZN\n🔹 28 (20c-28c) — 17 AZN\n🔹 29 (1.75-2.5) — 19 AZN\n\nMəhdud saydadır ‼️\nÇatdırılma var ✅" 
             },
@@ -290,9 +376,10 @@
                 id: 110, 
                 name: "KMC X8 Zəncir (6-8 Sürət)", 
                 price: 45.00, 
+                isWhiteBg: true,
                 images: [
-                    "https://i.ibb.co/RGpM0wzN/Screenshot-20260212-055617-Instagram.jpg",
-                    "https://i.ibb.co/LDcm20sS/Screenshot-20260212-055606-Instagram.jpg"
+                    "https://i.ibb.co/LDcm20sS/Screenshot-20260212-055606-Instagram.jpg",
+                    "https://i.ibb.co/RGpM0wzN/Screenshot-20260212-055617-Instagram.jpg"
                 ], 
                 details: "Marka: KMC\nModel: X8\nUyğunluq: MTB, Trekking, Road\nSürət: 6, 7, 8 Speed\nÖzəllik: Zamoklu\nUzunluq: 114 links\nÇəki: 324g\nTam Orijinal məhsul ‼️\nÇatdırılma var ✅" 
             },
@@ -300,18 +387,19 @@
                 id: 109, 
                 name: "Maxxis Recon 29x2.60", 
                 price: 79.00, 
+                isWhiteBg: true,
                 images: [
-                    "https://i.ibb.co/cS4gczWL/Screenshot-20260212-055147-Instagram.jpg",
-                    "https://i.ibb.co/xqGgFrGt/Screenshot-20260212-055108-Instagram.jpg"
+                    "https://i.ibb.co/xqGgFrGt/Screenshot-20260212-055108-Instagram.jpg",
+                    "https://i.ibb.co/cS4gczWL/Screenshot-20260212-055147-Instagram.jpg"
                 ], 
                 details: "Marka: Maxxis\nModel: Recon\nÖlçü: 29 x 2.60\nTubeless Ready\nAğırlıq: 920g\nOriginal Maxxis 🇩🇪\nMəhdud saydadır\nÇatdırılma var ✅" 
             },
             { id: 108, name: "Shimano Deore CS-M5100 Kaset", price: 139.00, images: ["https://i.ibb.co/GfrSz5Dj/Screenshot-20260212-013025-Instagram.jpg"], details: "Made in Japan 🇯🇵\nBrend: Shimano\nModel: CS-M5100\nSürət: 11 Sürət\nDişlər: 11-51T\nÇatdırılma var ✅" },
-            { id: 107, name: "GHOST Seatpost", price: 25.00, images: ["https://i.ibb.co/JwK7bfg2/Screenshot-20260212-012423-Instagram.jpg", "https://i.ibb.co/zTJrkNh7/Screenshot-20260212-012417-Instagram.jpg"], details: "Made in Almaniya 🇩🇪\nMarka: Ghost\nUzunluq: 400mm\nDiametr: 31.6mm\nÇatdırılma var ✅" },
-            { id: 106, name: "GHOST GND 51 Sükan", price: 39.00, images: ["https://i.ibb.co/dwGkZwgD/Screenshot-20260212-005109-Instagram.jpg", "https://i.ibb.co/7D6D70r/Screenshot-20260212-005009-Instagram.jpg"], details: "Made in Almaniya 🇩🇪\nMarka: Ghost\nUzunluq: 780mm\nDiametr: 31.8mm\nÇatdırılma var ✅" },
-            { id: 105, name: "Brigadier VZR MTB Helmet", price: 39.00, images: ["https://i.ibb.co/fzrCt8hJ/Screenshot-20260212-003526-Instagram.jpg", "https://i.ibb.co/Q7sJwg4t/Screenshot-20260212-003637-Instagram.jpg"], details: "Marka: Brigadier\nModel: VZR\nÖlçü: M - L\nQiymət: 39 AZN\nÇatdırılma var" },
-            { id: 104, name: "Reverse Components Saddle", price: 49.00, images: ["https://i.ibb.co/9mwB4wRn/Screenshot-20260212-002225-Wink.jpg", "https://i.ibb.co/XfWT9Yd1/quality-restoration-20260212002033230.jpg"], details: "Marka: Reverse Components\nMTB Yəhər\nRəng: Qara və qırmızı\nÇatdırılma var" },
-            { id: 103, name: "Cube Flat Pedal", price: 99.00, images: ["https://i.ibb.co/7dmyVg1m/Screenshot-20260211-231200-Instagram.jpg", "https://i.ibb.co/C5K74QKq/Screenshot-20260211-231243-Instagram.jpg"], details: "Made in Almaniya\nMarka: Cube\nMaterial: Aluminum\nRəng: Açıq yaşıl\nÇatdırılma var" },
+            { id: 107, name: "GHOST Seatpost", price: 25.00, isWhiteBg: true, images: ["https://i.ibb.co/zTJrkNh7/Screenshot-20260212-012417-Instagram.jpg", "https://i.ibb.co/JwK7bfg2/Screenshot-20260212-012423-Instagram.jpg"], details: "Made in Almaniya 🇩🇪\nMarka: Ghost\nUzunluq: 400mm\nDiametr: 31.6mm\nÇatdırılma var ✅" },
+            { id: 106, name: "GHOST GND 51 Sükan", price: 39.00, isWhiteBg: true, images: ["https://i.ibb.co/7D6D70r/Screenshot-20260212-005009-Instagram.jpg", "https://i.ibb.co/dwGkZwgD/Screenshot-20260212-005109-Instagram.jpg"], details: "Made in Almaniya 🇩🇪\nMarka: Ghost\nUzunluq: 780mm\nDiametr: 31.8mm\nÇatdırılma var ✅" },
+            { id: 105, name: "Brigadier VZR MTB Helmet", price: 39.00, isWhiteBg: true, images: ["https://i.ibb.co/vx9wvSh9/Screenshot-20260228-140539-Instagram.png", "https://i.ibb.co/fzrCt8hJ/Screenshot-20260212-003526-Instagram.jpg", "https://i.ibb.co/Q7sJwg4t/Screenshot-20260212-003637-Instagram.jpg"], details: "Marka: Brigadier\nModel: VZR\nÖlçü: M - L\nQiymət: 39 AZN\nÇatdırılma var" },
+            { id: 104, name: "Reverse Components Saddle", price: 49.00, isWhiteBg: true, images: ["https://i.ibb.co/XfWT9Yd1/quality-restoration-20260212002033230.jpg", "https://i.ibb.co/9mwB4wRn/Screenshot-20260212-002225-Wink.jpg"], details: "Marka: Reverse Components\nMTB Yəhər\nRəng: Qara və qırmızı\nÇatdırılma var" },
+            { id: 103, name: "Cube Flat Pedal", price: 99.00, isWhiteBg: true, images: ["https://i.ibb.co/C5K74QKq/Screenshot-20260211-231243-Instagram.jpg", "https://i.ibb.co/7dmyVg1m/Screenshot-20260211-231200-Instagram.jpg"], details: "Made in Almaniya\nMarka: Cube\nMaterial: Aluminum\nRəng: Açıq yaşıl\nÇatdırılma var" },
             { id: 102, name: "Fullface Dəbilqə", price: 139.00, images: ["https://i.ibb.co/NPcQ5v3/Screenshot-20260211-225632-Instagram.jpg", "https://i.ibb.co/KpXd8x7v/Screenshot-20260211-225621-Instagram.jpg"], details: "Çəki: 1420q\nRəng: Qara yaşıl\nÖlçü: M,L\nÇatdırılma var." },
             { id: 101, name: "Velosiped Tutacağı (Grip)", price: 10.00, images: ["https://i.ibb.co/bRKRFsvg/Screenshot-20260211-213641-Instagram.jpg", "https://i.ibb.co/WWtczntK/Screenshot-20260211-213629-Instagram.jpg"], details: "Made in China\n135mm\nRəng: Qırmızı və Bənövşəyi\nÇatdırılma var" }
         ];
@@ -321,6 +409,13 @@
         let currentFilteredList = []; 
 
         function init() {
+            // Ağ fonlu məhsulları önə çıxarmaq üçün sıralama
+            products.sort((a, b) => {
+                const aIsWhite = a.isWhiteBg ? 1 : 0;
+                const bIsWhite = b.isWhiteBg ? 1 : 0;
+                return bIsWhite - aIsWhite; // 1 olanlar (true) əvvəl gələcək
+            });
+
             currentFilteredList = products; 
             renderGrid();
         }
@@ -377,6 +472,7 @@
             toggleMenu();
             if(page === 'home') {
                 displayedLimit = 6;
+                // Filtrdən çıxanda yenə də sıralanmış halını qaytarırıq
                 currentFilteredList = products;
                 document.getElementById('searchInput').value = ""; // Axtarışı təmizlə
                 renderGrid();
@@ -389,8 +485,21 @@
         }
 
         let curProd = null, curImgIdx = 0;
+        
         function openModal(id) {
-            curProd = products.find(p => p.id === id); curImgIdx = 0;
+            curProd = products.find(p => p.id === id); 
+            curImgIdx = 0;
+            
+            // Slider şəkillərini track içinə yığırıq (Animasiya üçün)
+            const track = document.getElementById('image-track');
+            track.innerHTML = "";
+            curProd.images.forEach(imgSrc => {
+                const img = document.createElement('img');
+                img.src = imgSrc;
+                img.className = "modal-image";
+                track.appendChild(img);
+            });
+
             updateSlider();
             document.getElementById('modal-name').innerText = curProd.name;
             document.getElementById('modal-details').innerText = curProd.details;
@@ -402,18 +511,44 @@
             
             document.getElementById('product-modal').style.display = 'flex';
         }
+
         function updateSlider() {
-            document.getElementById('modal-img').src = curProd.images[curImgIdx];
+            // Track-i sürüşdürürük (Smooth animasiya ilə)
+            document.getElementById('image-track').style.transform = `translateX(-${curImgIdx * 100}%)`;
             document.getElementById('img-counter').innerText = `${curImgIdx+1} / ${curProd.images.length}`;
         }
+        
         function closeProductModal() { document.getElementById('product-modal').style.display = 'none'; }
 
+        // Swipe barmaq hərəkətləri
         let startX = 0;
-        document.getElementById('swipe-area').addEventListener('touchstart', e => startX = e.touches[0].clientX);
+        document.getElementById('swipe-area').addEventListener('touchstart', e => {
+            startX = e.touches[0].clientX;
+        });
         document.getElementById('swipe-area').addEventListener('touchend', e => {
             let endX = e.changedTouches[0].clientX;
-            if(startX > endX + 50) { curImgIdx = (curImgIdx+1)%curProd.images.length; updateSlider(); }
-            if(startX < endX - 50) { curImgIdx = (curImgIdx-1+curProd.images.length)%curProd.images.length; updateSlider(); }
+            if(startX > endX + 50) { 
+                // Sola sürüşdürmə - Növbəti şəkil
+                if(curImgIdx < curProd.images.length - 1) {
+                    curImgIdx++;
+                    updateSlider();
+                } else {
+                    // Sona çatanda başa qayıtmaq istəyirsinizsə bu sətri saxlayın
+                    curImgIdx = 0;
+                    updateSlider();
+                }
+            }
+            if(startX < endX - 50) { 
+                // Sağa sürüşdürmə - Əvvəlki şəkil
+                if(curImgIdx > 0) {
+                    curImgIdx--;
+                    updateSlider();
+                } else {
+                    // Əvvələ çatanda sona getmək istəyirsinizsə
+                    curImgIdx = curProd.images.length - 1;
+                    updateSlider();
+                }
+            }
         });
 
         document.getElementById('searchInput').addEventListener('input', (e) => {
