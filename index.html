@@ -3,9 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ŞƏKİL DÜZƏLTMƏSİ: ibb.co hotlink blokunun qarşısını alır -->
+    <meta name="referrer" content="no-referrer">
     <title>BIKE.SHOP.AZ</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -38,7 +43,7 @@
             100% { background-position: 300% 0%; }
         }
 
-        /* ── SCROLL PROGRESS (underneath neon bar) ── */
+        /* ── SCROLL PROGRESS ── */
         .scroll-progress {
             position: fixed;
             top: 3px; left: 0;
@@ -59,7 +64,7 @@
             position: sticky;
             top: 0;
             z-index: 100;
-            height: 70px; 
+            height: 70px;
             border-bottom: 1px solid #1e1e1e;
             box-shadow: 0 1px 0 #000, 0 2px 20px rgba(232,255,0,0.04);
             transition: box-shadow 0.4s;
@@ -78,10 +83,10 @@
             filter: drop-shadow(0 0 10px rgba(232,255,0,0.45));
             transform: scale(1.04);
         }
-        
-        .header-title { 
+
+        .header-title {
             font-size: 1rem;
-            font-weight: bold; 
+            font-weight: bold;
             position: absolute;
             left: 50%;
             transform: translateX(-50%);
@@ -150,6 +155,7 @@
             transition: background 0.2s, padding-left 0.35s, color 0.2s;
             position: relative;
             overflow: hidden;
+            cursor: pointer;
         }
         .menu-item::before {
             content: '';
@@ -178,8 +184,19 @@
             cursor: pointer;
             position: relative;
             transition: transform 0.35s cubic-bezier(0.16,1,0.3,1);
+            animation: cardIn 0.5s cubic-bezier(0.16,1,0.3,1) both;
         }
         .product-card:hover { transform: translateY(-3px); }
+        @keyframes cardIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .product-card:nth-child(1) { animation-delay: 0.04s; }
+        .product-card:nth-child(2) { animation-delay: 0.08s; }
+        .product-card:nth-child(3) { animation-delay: 0.12s; }
+        .product-card:nth-child(4) { animation-delay: 0.16s; }
+        .product-card:nth-child(5) { animation-delay: 0.20s; }
+        .product-card:nth-child(6) { animation-delay: 0.24s; }
 
         .image-container {
             width: 100%;
@@ -195,7 +212,6 @@
             border-color: rgba(232,255,0,0.2);
             box-shadow: 0 0 16px rgba(232,255,0,0.08), 0 6px 24px rgba(0,0,0,0.5);
         }
-
         .image-container::after {
             content: '';
             position: absolute;
@@ -251,7 +267,7 @@
             100% { transform: scale(1); }
         }
 
-        /* LOAD MORE BUTTON */
+        /* LOAD MORE */
         .load-more-container {
             text-align: center;
             padding: 20px;
@@ -298,12 +314,8 @@
             overflow-y: auto;
             flex-direction: column;
         }
-        .modal.opening {
-            animation: modalIn 0.4s cubic-bezier(0.16,1,0.3,1) both;
-        }
-        .modal.closing {
-            animation: modalOut 0.3s ease forwards;
-        }
+        .modal.opening { animation: modalIn 0.4s cubic-bezier(0.16,1,0.3,1) both; }
+        .modal.closing { animation: modalOut 0.3s ease forwards; }
         @keyframes modalIn {
             from { opacity: 0; transform: translateY(30px); }
             to   { opacity: 1; transform: translateY(0); }
@@ -313,11 +325,11 @@
             to   { opacity: 0; transform: translateY(24px); }
         }
 
-        .modal-top-bar { 
+        .modal-top-bar {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 15px 20px; 
+            padding: 15px 20px;
             background: rgba(0,0,0,0.95);
             backdrop-filter: blur(16px);
             position: sticky;
@@ -342,15 +354,16 @@
         }
         .close-btn:active { transform: rotate(90deg) scale(0.9); }
 
-        /* SLIDER */
+        /* SLIDER — Sadə tək şəkil strukturu (kod 2 kimi) */
         .slider-wrapper {
             position: relative;
             width: 100%;
-            background-color: #000; 
+            background-color: #000;
             min-height: 350px;
-            overflow: hidden;
             display: flex;
             align-items: center;
+            justify-content: center;
+            overflow: hidden;
         }
         .slider-wrapper::after {
             content: '';
@@ -361,17 +374,11 @@
             pointer-events: none;
             z-index: 5;
         }
-        .image-track {
-            display: flex;
-            align-items: center;
-            width: 100%; height: 100%;
-            transition: transform 0.42s cubic-bezier(0.25,0.8,0.25,1);
-        }
-        .modal-image { 
-            flex: 0 0 100%;
-            width: 100%;
+        .modal-image {
+            max-width: 100%;
             max-height: 80vh;
-            object-fit: contain; 
+            object-fit: contain;
+            display: block;
         }
         .image-counter {
             position: absolute;
@@ -386,6 +393,7 @@
             letter-spacing: 0.05em;
         }
 
+        /* Dot indicators */
         .image-dots {
             position: absolute;
             bottom: 14px; left: 50%;
@@ -418,27 +426,18 @@
             from { opacity: 0; transform: translateY(16px); }
             to   { opacity: 1; transform: translateY(0); }
         }
-        .modal-name {
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin-bottom: 15px;
-        }
-        .modal-details {
-            color: #ccc;
-            line-height: 1.6;
-            margin-bottom: 30px;
-            white-space: pre-wrap;
-        }
+        .modal-name { font-size: 1.5rem; font-weight: bold; margin-bottom: 15px; }
+        .modal-details { color: #ccc; line-height: 1.6; margin-bottom: 30px; white-space: pre-wrap; }
 
         .order-btn {
             background-color: #fff;
             color: #000;
             text-align: center;
-            padding: 18px; 
+            padding: 18px;
             border-radius: 50px;
             text-decoration: none;
             font-weight: bold;
-            display: block; 
+            display: block;
             font-size: 1.1rem;
             margin-bottom: 30px;
             transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s, background 0.3s;
@@ -463,6 +462,39 @@
         .order-btn:hover::before { left: 120%; }
         .order-btn:active { transform: scale(0.97); }
 
+        /* PROFILE MODAL */
+        .profile-modal-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+            text-align: center;
+            animation: fadeUp 0.4s cubic-bezier(0.16,1,0.3,1) both;
+        }
+        .profile-big-img {
+            width: 100px; height: 100px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            margin-bottom: 15px;
+            object-fit: cover;
+        }
+        .profile-display-name { font-size: 1.3rem; font-weight: bold; margin: 0 0 8px; }
+        .profile-display-email { color: #888; margin: 0 0 40px; }
+        .logout-btn {
+            background: #1a1a1a;
+            color: #ff4444;
+            border: 1px solid #2a2a2a;
+            padding: 15px;
+            width: 100%;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.25s, border-color 0.25s;
+            letter-spacing: 0.05em;
+        }
+        .logout-btn:hover { background: #2a0000; border-color: #ff4444; }
+
         /* FOOTER */
         footer {
             background-color: #080808;
@@ -480,7 +512,6 @@
             height: 1px;
             background: linear-gradient(90deg, transparent, rgba(232,255,0,0.25), transparent);
         }
-
         .social-icons {
             display: flex;
             justify-content: center;
@@ -499,11 +530,9 @@
         .social-link:nth-child(1):hover { filter: drop-shadow(0 4px 12px rgba(234,67,53,0.5)); }
         .social-link:nth-child(2):hover { filter: drop-shadow(0 4px 12px rgba(37,211,102,0.5)); }
         .social-link:nth-child(3):hover { filter: drop-shadow(0 4px 12px rgba(225,48,108,0.5)); }
-
         .fa-whatsapp { color: #25D366; }
         .fa-instagram { color: #E1306C; }
         .fa-envelope { color: #EA4335; }
-
         .copyright { color: #444; font-size: 0.8rem; }
 
         /* EMPTY STATE */
@@ -512,21 +541,6 @@
             color: #444; grid-column: 1 / -1;
         }
         .empty-state i { font-size: 2.5rem; margin-bottom: 12px; display: block; }
-
-        /* CARD FADE IN */
-        .product-card {
-            animation: cardIn 0.5s cubic-bezier(0.16,1,0.3,1) both;
-        }
-        @keyframes cardIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-        .product-card:nth-child(1) { animation-delay: 0.04s; }
-        .product-card:nth-child(2) { animation-delay: 0.08s; }
-        .product-card:nth-child(3) { animation-delay: 0.12s; }
-        .product-card:nth-child(4) { animation-delay: 0.16s; }
-        .product-card:nth-child(5) { animation-delay: 0.20s; }
-        .product-card:nth-child(6) { animation-delay: 0.24s; }
 
         /* TOAST */
         #toast {
@@ -554,15 +568,14 @@
 </head>
 <body>
 
-    <!-- Neon top bar -->
     <div class="neon-top-bar"></div>
     <div class="scroll-progress" id="scrollProgress"></div>
-
-    <!-- Toast -->
     <div id="toast"></div>
 
     <header id="site-header">
-        <div class="header-logo"><img src="https://i.ibb.co/3yZW23jr/file-00000000175c722fb281a93f97e3f54f.png" alt="Logo"></div>
+        <div class="header-logo">
+            <img src="https://i.ibb.co/3yZW23jr/file-00000000175c722fb281a93f97e3f54f.png" alt="Logo">
+        </div>
         <div class="header-title">BIKE.SHOP.AZ</div>
         <div class="menu-icon" onclick="toggleMenu()"><i class="fas fa-bars"></i></div>
     </header>
@@ -573,6 +586,7 @@
 
     <nav id="main-menu">
         <a href="#" class="menu-item" onclick="showPage('home')"><i class="fas fa-home"></i> Əsas səhifə</a>
+        <div class="menu-item" onclick="handleProfileClick()"><i class="fas fa-user"></i> <span id="menu-profile-text">Giriş et</span></div>
         <a href="#" class="menu-item" onclick="showPage('wishlist')"><i class="fas fa-heart"></i> İstək siyahım</a>
         <a href="https://wa.me/994552345510" class="menu-item"><i class="fab fa-whatsapp"></i> Əlaqə</a>
     </nav>
@@ -592,6 +606,7 @@
         <div class="copyright">&copy; 2026 BIKE.SHOP.AZ. Bütün hüquqlar qorunur.</div>
     </footer>
 
+    <!-- MƏHSUL MODALI -->
     <div id="product-modal" class="modal">
         <div class="modal-top-bar">
             <div class="close-btn" onclick="closeProductModal()">&times;</div>
@@ -600,7 +615,7 @@
         </div>
         <div class="slider-wrapper" id="swipe-area">
             <div class="image-counter" id="img-counter">1 / 1</div>
-            <div class="image-track" id="image-track"></div>
+            <img id="modal-img" src="" class="modal-image" alt="">
             <div class="image-dots" id="image-dots"></div>
         </div>
         <div class="modal-content">
@@ -610,7 +625,70 @@
         </div>
     </div>
 
+    <!-- PROFİL MODALI -->
+    <div id="profile-modal" class="modal">
+        <div class="modal-top-bar">
+            <div class="close-btn" onclick="closeProfileModal()">&times;</div>
+            <div class="header-title" style="position:static; transform:none;">Profil</div>
+            <div style="width:38px;"></div>
+        </div>
+        <div class="profile-modal-content">
+            <img id="profile-display-img" src="" class="profile-big-img" alt="">
+            <p class="profile-display-name" id="profile-display-name"></p>
+            <p class="profile-display-email" id="profile-display-email"></p>
+            <button class="logout-btn" onclick="doSignOut()">ÇIXIŞ ET</button>
+        </div>
+    </div>
+
     <script>
+        /* ── FIREBASE ── */
+        const firebaseConfig = {
+            apiKey: "AIzaSyAG6l_x_kOdj7L7ynRKJv4at1hboFvWm-U",
+            authDomain: "bikeshopaz.firebaseapp.com",
+            projectId: "bikeshopaz",
+            storageBucket: "bikeshopaz.firebasestorage.app",
+            messagingSenderId: "143264593350",
+            appId: "1:143264593350:web:3e9e65261052c839392ec7"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const provider = new firebase.auth.GoogleAuthProvider();
+
+        let currentUser = null;
+        auth.onAuthStateChanged(user => {
+            currentUser = user;
+            document.getElementById('menu-profile-text').innerText = user ? "Profilim" : "Giriş et";
+        });
+
+        function handleProfileClick() {
+            toggleMenu();
+            if (currentUser) {
+                document.getElementById('profile-display-img').src = currentUser.photoURL || '';
+                document.getElementById('profile-display-name').innerText = currentUser.displayName || '';
+                document.getElementById('profile-display-email').innerText = currentUser.email || '';
+                const pm = document.getElementById('profile-modal');
+                pm.style.display = 'flex';
+                pm.classList.remove('closing');
+                pm.classList.add('opening');
+                document.body.style.overflow = 'hidden';
+            } else {
+                auth.signInWithRedirect(provider);
+            }
+        }
+
+        function doSignOut() {
+            if (confirm("Çıxış edilsin?")) { auth.signOut().then(() => location.reload()); }
+        }
+
+        function closeProfileModal() {
+            const pm = document.getElementById('profile-modal');
+            pm.classList.remove('opening');
+            pm.classList.add('closing');
+            setTimeout(() => { pm.style.display = 'none'; pm.classList.remove('closing'); }, 290);
+            document.body.style.overflow = '';
+        }
+
+        /* ── MƏHSULLAR ── */
         const products = [
             {
                 id: 128,
@@ -632,7 +710,7 @@
                     "https://i.ibb.co/B5jCpyB5/Screenshot-20260301-142429-Instagram.jpg",
                     "https://i.ibb.co/3y02d0Hz/Screenshot-20260301-142439-Instagram.jpg"
                 ],
-                details: "Made in Almaniya 🇩🇪\nMarka: SCHWALBE\nÖlçü: 27.5 və 29\nUyğunluq: Təkər qalınlığına görə 2.10, 2.2, 2.3, 2.35, 2.4, 2.5, 2.6, 2.8, 3.0\nTam original və yeni\nNazik boğaz SV 40 mm\nÇəkisi: 240 g\nQiymət: 15 AZN\nÇatdırılma var"
+                details: "Made in Almaniya 🇩🇪\nMarka: SCHWALBE\nÖlçü: 27.5 və 29\nUyğunluq: 2.10, 2.2, 2.3, 2.35, 2.4, 2.5, 2.6, 2.8, 3.0\nTam original və yeni\nNazik boğaz SV 40 mm\nÇəkisi: 240 g\nQiymət: 15 AZN\nÇatdırılma var"
             },
             {
                 id: 126,
@@ -655,7 +733,7 @@
                     "https://i.ibb.co/SD11mcxR/Screenshot-20260301-141927-Instagram.jpg",
                     "https://i.ibb.co/Kz6wfSBX/Screenshot-20260301-141939-Instagram.jpg"
                 ],
-                details: "Made in Italy 🇮🇹\nBrend: Formula (İtaliya)\nModel: Cura\nNöv: Hidravlik disk əyləci\nŞlanq uzunluğu: 2000 mm (2 metr)\nDolu yağ ilə hazır vəziyyətdə\nOriginal Formula naklatka ilə birlikdə\nMontaj standartı: Flat Mount (FM)\nMaye növü: Mineral yağ\nPorşen sayı: 2 ədəd (24 mm)\nMaterial: Döymə alüminium (Forged Aluminum)\nTəyinat: Road, Gravel, XC\nRəng: Qara (Glossy Black)\nXüsusiyyət: Yüngül çəki, aerodinamik dizayn və güclü tormozlama\nÇatdırılma var\nQiymət: 119 AZN"
+                details: "Made in Italy 🇮🇹\nBrend: Formula\nModel: Cura\nNöv: Hidravlik disk əyləci\nŞlanq uzunluğu: 2000 mm\nDolu yağ ilə hazır vəziyyətdə\nMontaj standartı: Flat Mount (FM)\nMaye növü: Mineral yağ\nPorşen sayı: 2 ədəd (24 mm)\nMaterial: Döymə alüminium\nRəng: Qara (Glossy Black)\nÇatdırılma var\nQiymət: 119 AZN"
             },
             {
                 id: 124,
@@ -677,7 +755,7 @@
                     "https://i.ibb.co/YB82Xwn2/Screenshot-20260228-150938-Instagram.jpg",
                     "https://i.ibb.co/bMmGTXFV/Screenshot-20260228-150946-Instagram-1.jpg"
                 ],
-                details: "Made in America 🇺🇸\nMarka: Crankbrothers\nModel: Stamp 1\nRəng: Ağ\n🔹 material:\nSpindle: Forged scm 435 chromoly steel\nBody: Composite\n🔹 ölçü :114mmx111mm\n🔹 All Mountain, Enduro, Freeride, Downhill\nÇəkisi: 329g ( ədəd)\n📦 Çatdırılma var ✔\n💵 Qiymət: 69 AZN"
+                details: "Made in America 🇺🇸\nMarka: Crankbrothers\nModel: Stamp 1\nRəng: Ağ\nSpindle: Forged scm 435 chromoly steel\nBody: Composite\nÖlçü: 114mmx111mm\nAll Mountain, Enduro, Freeride, Downhill\nÇəkisi: 329g (ədəd)\n📦 Çatdırılma var ✔\n💵 Qiymət: 69 AZN"
             },
             {
                 id: 122,
@@ -688,7 +766,7 @@
                     "https://i.ibb.co/kVZyv83Y/Screenshot-20260228-145047-Instagram.jpg",
                     "https://i.ibb.co/ZRd5nX8P/Screenshot-20260228-145100-Instagram.jpg"
                 ],
-                details: "Marka : Enlee\narxa və Ön ücün\nQiymət: 6azn\nÇatdırılma var"
+                details: "Marka: Enlee\nArxa və Ön üçün\nQiymət: 6 AZN\nÇatdırılma var"
             },
             {
                 id: 121,
@@ -701,7 +779,7 @@
                     "https://i.ibb.co/mVLrNzL6/Screenshot-20260228-143954-Instagram.jpg",
                     "https://i.ibb.co/fzx72248/Screenshot-20260228-144001-Instagram.jpg"
                 ],
-                details: "Marka : Poc\nModel : Kortal\nölçü : xl-xxl( 59-62cm\nÇəkisi : 440c\nÇatdırılma var\nQiymət : 249azn"
+                details: "Marka: Poc\nModel: Kortal\nÖlçü: XL-XXL (59-62cm)\nÇəkisi: 440g\nÇatdırılma var\nQiymət: 249 AZN"
             },
             {
                 id: 120,
@@ -712,7 +790,7 @@
                     "https://i.ibb.co/PstgVymG/Screenshot-20260228-142642-Instagram.jpg",
                     "https://i.ibb.co/r2XkDxF7/Screenshot-20260228-142654-Instagram.jpg"
                 ],
-                details: "Məhsul adı: WTB MTB RİM\nMarka: WTB\nÖlçü :29\n32 spiça\n30mm eni ( inbet width)\nMaterial : Aluminum\nYüngül və dözümlü material\n1cüt var almağa tələsin\nQiymət : 49azn (1ədəd)\nÇatdırılma var"
+                details: "Məhsul adı: WTB MTB RİM\nMarka: WTB\nÖlçü: 29\n32 spiça\n30mm eni (inbet width)\nMaterial: Aluminum\n1 cüt var almağa tələsin\nQiymət: 49 AZN (1 ədəd)\nÇatdırılma var"
             },
             {
                 id: 119,
@@ -730,109 +808,109 @@
                 ],
                 details: "Ad: Rockshox Judy Fork\nMarka: Trinx\nModel: Majes\nÖlçü: 27.5/29\nTravel: 100mm\nCoil (yağ)\nQR (eksentrik)\nStraight (düz turba)\nLock-on (kilidlənə bilən)\nSərtlik tənzimlənə bilir\nMəhsul yenidir\nÇatdırılma var\nQiymət: 99 AZN"
             },
-            { 
-                id: 118, 
-                name: "Tektro HD-M275 Hidravlik Əyləc Seti", 
-                price: 95.00, 
+            {
+                id: 118,
+                name: "Tektro HD-M275 Hidravlik Əyləc Seti",
+                price: 95.00,
                 images: [
                     "https://i.ibb.co/7dtVvy32/Screenshot-20260213-001228-Instagram.jpg",
                     "https://i.ibb.co/ZRnk3MZd/Screenshot-20260213-001218-Instagram.jpg"
-                ], 
-                details: "🔴 Tektro HD-M275 Hidravlik Əyləc Seti\n🔹 Brend: Tektro\n🔹 Model: HD-M275\n🔹 Sistem: Açıq sistem, 2 Porşenli (2-Piston)\n🔹 İşləmə prinsipi: Hidravlik (Mineral Yağ)\n🔹 Qol ölçüsü: 2-barmaq (2-Finger) – qısa və rahat tutuş\n🔹 Material: Alüminium ərintisi (qol və suport)\n🔹 Uyğunluq: MTB, Trekking və Şəhər velosipedləri\n\n⚙️ Texniki Detallar:\n🔹 Yağ növü: Mineral Oil (Qeyri-korroziv, servisi asan)\n🔹 (Caliper): Döymə alüminium, avtomatik mərkəzləşmə\n🔹 Nakladka (Qəlib): E10.11 (Organic / Resin) – Səssiz işləyir və yaxşı tutur\n🔹 Tənzimləmə: Qol məsafəsi (Reach adjustment) alətlə tənzimlənir\n\n🔹 Kabel (Şlank) uzunluğu:\n🔹 Ön: ~800 - 900 mm\n🔹 Arxa: ~1450 - 1500 mm\n\n⚖️ Çəki:\n🔹 Ön: ~287 - 290 qram\n🔹 Arxa: ~307 - 310 qram\n🔹 Cüt (Set): Təxminən 600 qram\n\n✅ Qeyd: Başlanğıc və orta səviyyə üçün ideal, uzunömürlü və asan servis olunan modeldir.\n✅ Qeyd: 1 həftə istifadə olunub yenidən seçilmir\n❌ Tək satılmır ❌\n📦 Çatdırılma var ✅\n💵 Qiymət: 95 AZN (Cüt)" 
+                ],
+                details: "🔴 Tektro HD-M275 Hidravlik Əyləc Seti\nBrend: Tektro\nModel: HD-M275\nSistem: Açıq sistem, 2 Porşenli\nİşləmə prinsipi: Hidravlik (Mineral Yağ)\nQol ölçüsü: 2-barmaq\nMaterial: Alüminium ərintisi\nYağ növü: Mineral Oil\nNakladka: E10.11 (Organic / Resin)\nÖn şlanq: ~800-900 mm\nArxa şlanq: ~1450-1500 mm\nÇəki (cüt): ~600 g\n✅ 1 həftə istifadə olunub\n❌ Tək satılmır\n📦 Çatdırılma var ✅\n💵 Qiymət: 95 AZN (Cüt)"
             },
-            { 
-                id: 117, 
-                name: "Rockshox 35 Coil (120mm)", 
-                price: 149.00, 
+            {
+                id: 117,
+                name: "Rockshox 35 Coil (120mm)",
+                price: 149.00,
                 isWhiteBg: true,
                 images: [
                     "https://i.ibb.co/LDfbsn8B/Screenshot-20260228-135646-Instagram.jpg",
                     "https://i.ibb.co/FkfQQpqt/Screenshot-20260213-000010-Instagram.jpg",
                     "https://i.ibb.co/ZpJ2pBqn/Screenshot-20260212-235958-Instagram.jpg"
-                ], 
-                details: "Made in America 🇺🇸\nMarka: ROCKSHOX\nModel: 35\nÖlçü: 29 / 27.5\nTravel: 120mm\nSistem: COiL (Yaylı)\nAxle: Boost 15x110\nTravel turba qalınığı: 35mm 👍\nÇəkisi: 2.7kg\nQiymət: 149 AZN\nÇatdırılma var ✅" 
+                ],
+                details: "Made in America 🇺🇸\nMarka: ROCKSHOX\nModel: 35\nÖlçü: 29 / 27.5\nTravel: 120mm\nSistem: COIL (Yaylı)\nAxle: Boost 15x110\nTravel turba qalınlığı: 35mm\nÇəkisi: 2.7 kg\nQiymət: 149 AZN\nÇatdırılma var ✅"
             },
-            { 
-                id: 116, 
-                name: "Rockshox Judy (Hava Amortizatoru)", 
-                price: 330.00, 
+            {
+                id: 116,
+                name: "Rockshox Judy (Hava Amortizatoru)",
+                price: 330.00,
                 images: [
                     "https://i.ibb.co/TBWJQnGy/Screenshot-20260212-235507-Instagram.jpg",
                     "https://i.ibb.co/8gjcZxz3/Screenshot-20260212-235450-Instagram.jpg"
-                ], 
-                details: "Made in America 🇺🇸\nMarka: Rockshox\nModel: Judy\nÖlçü: 29 / 27.5\nTravel: 120mm\nHava (AIR)\nThru Axle: 15x110\nÇəkisi: 1787g\nÜst boru diametr: 30mm\nOffset: 51mm\nQiymət: 330 AZN (Dəyişə bilər)\nÇatdırılma var ✅" 
+                ],
+                details: "Made in America 🇺🇸\nMarka: Rockshox\nModel: Judy\nÖlçü: 29 / 27.5\nTravel: 120mm\nHava (AIR)\nThru Axle: 15x110\nÇəkisi: 1787 g\nÜst boru diametr: 30mm\nOffset: 51mm\nQiymət: 330 AZN\nÇatdırılma var ✅"
             },
-            { 
-                id: 115, 
-                name: "Crankbrothers Stamp 1 Pedallar", 
-                price: 69.00, 
+            {
+                id: 115,
+                name: "Crankbrothers Stamp 1 Pedallar",
+                price: 69.00,
                 isWhiteBg: true,
                 images: [
                     "https://i.ibb.co/kV1sHjqq/Screenshot-20260212-234921-Instagram.jpg",
                     "https://i.ibb.co/LVWJRSs/Screenshot-20260212-234935-Instagram.jpg"
-                ], 
-                details: "Made in America 🇺🇸\nMarka: Crankbrothers\nModel: Stamp 1\nMaterial:\nSpindle: Forged scm 435 chromoly steel\nBody: Composite\nÖlçü: 100mm x 100mm\nİstifadə: All Mountain, Enduro, Freeride, Downhill\nÇəkisi: 299g (ədəd)\nQiymət: 69 AZN\nÇatdırılma var ✅" 
+                ],
+                details: "Made in America 🇺🇸\nMarka: Crankbrothers\nModel: Stamp 1\nSpindle: Forged scm 435 chromoly steel\nBody: Composite\nÖlçü: 100mm x 100mm\nAll Mountain, Enduro, Freeride, Downhill\nÇəkisi: 299 g (ədəd)\nQiymət: 69 AZN\nÇatdırılma var ✅"
             },
-            { 
-                id: 114, 
-                name: "Onza Kamer 26 (2.10-2.60)", 
-                price: 10.00, 
+            {
+                id: 114,
+                name: "Onza Kamer 26 (2.10-2.60)",
+                price: 10.00,
                 isWhiteBg: true,
                 images: [
                     "https://i.ibb.co/4wfzKJbG/Screenshot-20260212-233803-Instagram.jpg",
                     "https://i.ibb.co/xqyHLzzr/Screenshot-20260212-233807-Instagram.jpg"
-                ], 
-                details: "Marka: Onza\nÖlçü: 26\nEn: 2.10 — 2.60 kimi dəstəkləyir (2.80 taxmaq olar)\nÇəkisi: 200g\nMəhdud saydadır, almağa tələsin ‼️\nQiymət: 10 AZN\nÇatdırılma var ✅" 
+                ],
+                details: "Marka: Onza\nÖlçü: 26\nEn: 2.10 — 2.60 kimi dəstəkləyir (2.80 taxmaq olar)\nÇəkisi: 200 g\nMəhdud saydadır, almağa tələsin ‼️\nQiymət: 10 AZN\nÇatdırılma var ✅"
             },
-            { 
-                id: 113, 
-                name: "Continental Set (Kamer+Çexol+Qaşıq)", 
-                price: 17.00, 
+            {
+                id: 113,
+                name: "Continental Set (Kamer+Çexol+Qaşıq)",
+                price: 17.00,
                 isWhiteBg: true,
                 images: [
                     "https://i.ibb.co/Zp2LLXMP/Screenshot-20260212-233300-Instagram.jpg",
                     "https://i.ibb.co/3ttF5v5/Screenshot-20260212-233315-Instagram.jpg"
-                ], 
-                details: "Made in Almaniya 🇩🇪\nMarka: Continental\nModel: S42\nKamer boğazı: SV 42mm\n\n🎁 ÇEXOL + KAMER + QAŞIQ 🎁\n\nÖlçülər və Qiymətlər:\n🔹 27.5 (1.75-2.5) — 17 AZN\n🔹 28 (20c-28c) — 17 AZN\n🔹 29 (1.75-2.5) — 19 AZN\n\nMəhdud saydadır ‼️\nÇatdırılma var ✅" 
+                ],
+                details: "Made in Almaniya 🇩🇪\nMarka: Continental\nModel: S42\nKamer boğazı: SV 42mm\n🎁 ÇEXOL + KAMER + QAŞIQ 🎁\nÖlçülər:\n🔹 27.5 (1.75-2.5) — 17 AZN\n🔹 28 (20c-28c) — 17 AZN\n🔹 29 (1.75-2.5) — 19 AZN\nMəhdud saydadır ‼️\nÇatdırılma var ✅"
             },
-            { 
-                id: 112, 
-                name: "SRAM Centerline 220mm Rotor", 
-                price: 59.00, 
+            {
+                id: 112,
+                name: "SRAM Centerline 220mm Rotor",
+                price: 59.00,
                 images: [
                     "https://i.ibb.co/hRPrFLw4/Screenshot-20260212-232813-Instagram.jpg",
                     "https://i.ibb.co/kV2r1xjs/Screenshot-20260212-232802-Instagram.jpg"
-                ], 
-                details: "Made in America 🇺🇸\nMarka: Sram\nÖlçü: 220mm\n6 bolt\nSRAM Centerline Rounded 6-bolt Disc Rotor\nThe Sram CenterLine design provides a smooth, consistent, and quiet running braking surface.\nRounded edges make for easier wheel installs and are UCI-compliant.\nÇatdırılma var ✅" 
+                ],
+                details: "Made in America 🇺🇸\nMarka: SRAM\nÖlçü: 220mm\n6 bolt\nSRAM CenterLine Rounded 6-bolt Disc Rotor\nSmooth, consistent, and quiet running braking surface.\nRounded edges — UCI-compliant.\nÇatdırılma var ✅"
             },
-            { 
-                id: 111, 
-                name: "Ördək (Velosiped Aksesuarı)", 
-                price: 5.00, 
-                images: ["https://i.ibb.co/35t4Nqdz/Screenshot-20260212-062138-Instagram.jpg"], 
-                details: "Məhsul: Velosiped üçün Ördək\nQiymət: 5 AZN\nÇatdırılma var ✅" 
+            {
+                id: 111,
+                name: "Ördək (Velosiped Aksesuarı)",
+                price: 5.00,
+                images: ["https://i.ibb.co/35t4Nqdz/Screenshot-20260212-062138-Instagram.jpg"],
+                details: "Məhsul: Velosiped üçün Ördək\nQiymət: 5 AZN\nÇatdırılma var ✅"
             },
-            { 
-                id: 110, 
-                name: "KMC X8 Zəncir (6-8 Sürət)", 
-                price: 45.00, 
+            {
+                id: 110,
+                name: "KMC X8 Zəncir (6-8 Sürət)",
+                price: 45.00,
                 isWhiteBg: true,
                 images: [
                     "https://i.ibb.co/LDcm20sS/Screenshot-20260212-055606-Instagram.jpg",
                     "https://i.ibb.co/RGpM0wzN/Screenshot-20260212-055617-Instagram.jpg"
-                ], 
-                details: "Marka: KMC\nModel: X8\nUyğunluq: MTB, Trekking, Road\nSürət: 6, 7, 8 Speed\nÖzəllik: Zamoklu\nUzunluq: 114 links\nÇəki: 324g\nTam Orijinal məhsul ‼️\nÇatdırılma var ✅" 
+                ],
+                details: "Marka: KMC\nModel: X8\nUyğunluq: MTB, Trekking, Road\nSürət: 6, 7, 8 Speed\nÖzəllik: Zamoklu\nUzunluq: 114 links\nÇəki: 324 g\nTam Orijinal məhsul ‼️\nÇatdırılma var ✅"
             },
-            { 
-                id: 109, 
-                name: "Maxxis Recon 29x2.60", 
-                price: 79.00, 
+            {
+                id: 109,
+                name: "Maxxis Recon 29x2.60",
+                price: 79.00,
                 isWhiteBg: true,
                 images: [
                     "https://i.ibb.co/xqGgFrGt/Screenshot-20260212-055108-Instagram.jpg",
                     "https://i.ibb.co/cS4gczWL/Screenshot-20260212-055147-Instagram.jpg"
-                ], 
-                details: "Marka: Maxxis\nModel: Recon\nÖlçü: 29 x 2.60\nTubeless Ready\nAğırlıq: 920g\nOriginal Maxxis 🇩🇪\nMəhdud saydadır\nÇatdırılma var ✅" 
+                ],
+                details: "Marka: Maxxis\nModel: Recon\nÖlçü: 29 x 2.60\nTubeless Ready\nAğırlıq: 920 g\nOriginal Maxxis 🇩🇪\nMəhdud saydadır\nÇatdırılma var ✅"
             },
             { id: 108, name: "Shimano Deore CS-M5100 Kaset", price: 139.00, images: ["https://i.ibb.co/GfrSz5Dj/Screenshot-20260212-013025-Instagram.jpg"], details: "Made in Japan 🇯🇵\nBrend: Shimano\nModel: CS-M5100\nSürət: 11 Sürət\nDişlər: 11-51T\nÇatdırılma var ✅" },
             { id: 107, name: "GHOST Seatpost", price: 25.00, isWhiteBg: true, images: ["https://i.ibb.co/zTJrkNh7/Screenshot-20260212-012417-Instagram.jpg", "https://i.ibb.co/JwK7bfg2/Screenshot-20260212-012423-Instagram.jpg"], details: "Made in Almaniya 🇩🇪\nMarka: Ghost\nUzunluq: 400mm\nDiametr: 31.6mm\nÇatdırılma var ✅" },
@@ -840,13 +918,13 @@
             { id: 105, name: "Brigadier VZR MTB Helmet", price: 39.00, isWhiteBg: true, images: ["https://i.ibb.co/vx9wvSh9/Screenshot-20260228-140539-Instagram.png", "https://i.ibb.co/fzrCt8hJ/Screenshot-20260212-003526-Instagram.jpg", "https://i.ibb.co/Q7sJwg4t/Screenshot-20260212-003637-Instagram.jpg"], details: "Marka: Brigadier\nModel: VZR\nÖlçü: M - L\nQiymət: 39 AZN\nÇatdırılma var" },
             { id: 104, name: "Reverse Components Saddle", price: 49.00, isWhiteBg: true, images: ["https://i.ibb.co/XfWT9Yd1/quality-restoration-20260212002033230.jpg", "https://i.ibb.co/9mwB4wRn/Screenshot-20260212-002225-Wink.jpg"], details: "Marka: Reverse Components\nMTB Yəhər\nRəng: Qara və qırmızı\nÇatdırılma var" },
             { id: 103, name: "Cube Flat Pedal", price: 99.00, isWhiteBg: true, images: ["https://i.ibb.co/C5K74QKq/Screenshot-20260211-231243-Instagram.jpg", "https://i.ibb.co/7dmyVg1m/Screenshot-20260211-231200-Instagram.jpg"], details: "Made in Almaniya\nMarka: Cube\nMaterial: Aluminum\nRəng: Açıq yaşıl\nÇatdırılma var" },
-            { id: 102, name: "Fullface Dəbilqə", price: 139.00, images: ["https://i.ibb.co/NPcQ5v3/Screenshot-20260211-225632-Instagram.jpg", "https://i.ibb.co/KpXd8x7v/Screenshot-20260211-225621-Instagram.jpg"], details: "Çəki: 1420q\nRəng: Qara yaşıl\nÖlçü: M,L\nÇatdırılma var." },
+            { id: 102, name: "Fullface Dəbilqə", price: 139.00, images: ["https://i.ibb.co/NPcQ5v3/Screenshot-20260211-225632-Instagram.jpg", "https://i.ibb.co/KpXd8x7v/Screenshot-20260211-225621-Instagram.jpg"], details: "Çəki: 1420 q\nRəng: Qara yaşıl\nÖlçü: M, L\nÇatdırılma var." },
             { id: 101, name: "Velosiped Tutacağı (Grip)", price: 10.00, images: ["https://i.ibb.co/bRKRFsvg/Screenshot-20260211-213641-Instagram.jpg", "https://i.ibb.co/WWtczntK/Screenshot-20260211-213629-Instagram.jpg"], details: "Made in China\n135mm\nRəng: Qırmızı və Bənövşəyi\nÇatdırılma var" }
         ];
 
         let wishlist = JSON.parse(localStorage.getItem('bikeWish')) || [];
-        let displayedLimit = 6; 
-        let currentFilteredList = []; 
+        let displayedLimit = 6;
+        let currentFilteredList = [];
 
         /* ── SCROLL PROGRESS ── */
         window.addEventListener('scroll', () => {
@@ -868,8 +946,7 @@
 
         /* ── INIT ── */
         function init() {
-            products.sort((a, b) => (b.isWhiteBg ? 1 : 0) - (a.isWhiteBg ? 1 : 0));
-            currentFilteredList = products; 
+            currentFilteredList = [...products];
             renderGrid();
         }
 
@@ -878,7 +955,7 @@
             const container = document.getElementById('product-container');
             container.innerHTML = "";
             const listToShow = currentFilteredList.slice(0, displayedLimit);
-            
+
             if (listToShow.length === 0) {
                 container.innerHTML = `<div class="empty-state"><i class="fas fa-search"></i><p>Məhsul tapılmadı</p></div>`;
                 document.getElementById('load-more-wrapper').style.display = 'none';
@@ -892,7 +969,7 @@
                 div.style.animationDelay = (i * 0.06) + 's';
                 div.innerHTML = `
                     <div class="image-container" onclick="openModal(${p.id})">
-                        <img src="${p.images[0]}" class="product-image" loading="lazy">
+                        <img src="${p.images[0]}" class="product-image" loading="lazy" referrerpolicy="no-referrer">
                     </div>
                     <div class="card-info-row">
                         <span class="grid-price">${p.price} AZN</span>
@@ -908,7 +985,7 @@
 
         /* ── LOAD MORE ── */
         function loadMoreItems() {
-            displayedLimit += 6; 
+            displayedLimit += 6;
             renderGrid();
         }
 
@@ -919,13 +996,8 @@
             icon.classList.add('pop');
             setTimeout(() => icon.classList.remove('pop'), 420);
             const idx = wishlist.indexOf(id);
-            if (idx > -1) {
-                wishlist.splice(idx, 1);
-                showToast('Siyahıdan silindi');
-            } else {
-                wishlist.push(id);
-                showToast('İstək siyahısına əlavə edildi ♥');
-            }
+            if (idx > -1) { wishlist.splice(idx, 1); showToast('Siyahıdan silindi'); }
+            else { wishlist.push(id); showToast('İstək siyahısına əlavə edildi ♥'); }
             localStorage.setItem('bikeWish', JSON.stringify(wishlist));
             icon.classList.toggle('fas');
             icon.classList.toggle('far');
@@ -945,49 +1017,44 @@
 
         function showPage(page) {
             toggleMenu();
+            displayedLimit = 6;
+            document.getElementById('searchInput').value = "";
             if (page === 'home') {
-                displayedLimit = 6;
-                currentFilteredList = products;
-                document.getElementById('searchInput').value = "";
-                renderGrid();
+                currentFilteredList = [...products];
             } else if (page === 'wishlist') {
                 currentFilteredList = products.filter(p => wishlist.includes(p.id));
-                displayedLimit = 6;
-                renderGrid();
             }
+            renderGrid();
         }
 
-        /* ── MODAL ── */
+        /* ── MODAL (Kod 2 strukturu: tək img elementi) ── */
         let curProd = null, curImgIdx = 0;
-        
+
         function openModal(id) {
-            curProd = products.find(p => p.id === id); 
+            curProd = products.find(p => p.id === id);
             curImgIdx = 0;
-            
-            const track = document.getElementById('image-track');
-            track.innerHTML = "";
-            curProd.images.forEach(imgSrc => {
-                const img = document.createElement('img');
-                img.src = imgSrc;
-                img.className = "modal-image";
-                track.appendChild(img);
-            });
-
-            buildDots();
             updateSlider();
-
+            buildDots();
             document.getElementById('modal-name').innerText = curProd.name;
             document.getElementById('modal-details').innerText = curProd.details;
-            
             const msg = `Salam, mən bu məhsulu sifariş etmək istəyirəm: ${curProd.name}`;
             document.getElementById('modal-whatsapp-btn').href = `https://wa.me/994552345510?text=${encodeURIComponent(msg)}`;
-            
             const modal = document.getElementById('product-modal');
             modal.style.display = 'flex';
             modal.classList.remove('closing');
             modal.classList.add('opening');
             modal.scrollTop = 0;
             document.body.style.overflow = 'hidden';
+        }
+
+        function updateSlider() {
+            const imgEl = document.getElementById('modal-img');
+            imgEl.src = curProd.images[curImgIdx];
+            imgEl.setAttribute('referrerpolicy', 'no-referrer');
+            document.getElementById('img-counter').innerText = `${curImgIdx + 1} / ${curProd.images.length}`;
+            document.querySelectorAll('#image-dots .dot').forEach((d, i) => {
+                d.classList.toggle('active', i === curImgIdx);
+            });
         }
 
         function buildDots() {
@@ -997,28 +1064,17 @@
             dotsEl.style.display = 'flex';
             curProd.images.forEach((_, i) => {
                 const dot = document.createElement('div');
-                dot.className = 'dot' + (i === curImgIdx ? ' active' : '');
+                dot.className = 'dot' + (i === 0 ? ' active' : '');
                 dot.onclick = () => { curImgIdx = i; updateSlider(); };
                 dotsEl.appendChild(dot);
             });
         }
 
-        function updateSlider() {
-            document.getElementById('image-track').style.transform = `translateX(-${curImgIdx * 100}%)`;
-            document.getElementById('img-counter').innerText = `${curImgIdx + 1} / ${curProd.images.length}`;
-            document.querySelectorAll('#image-dots .dot').forEach((d, i) => {
-                d.classList.toggle('active', i === curImgIdx);
-            });
-        }
-        
         function closeProductModal() {
             const modal = document.getElementById('product-modal');
             modal.classList.remove('opening');
             modal.classList.add('closing');
-            setTimeout(() => {
-                modal.style.display = 'none';
-                modal.classList.remove('closing');
-            }, 290);
+            setTimeout(() => { modal.style.display = 'none'; modal.classList.remove('closing'); }, 290);
             document.body.style.overflow = '';
         }
 
@@ -1042,8 +1098,8 @@
         /* ── SEARCH ── */
         document.getElementById('searchInput').addEventListener('input', e => {
             const val = e.target.value.toLowerCase();
-            currentFilteredList = val ? products.filter(p => p.name.toLowerCase().includes(val)) : products;
-            displayedLimit = 6; 
+            currentFilteredList = val ? products.filter(p => p.name.toLowerCase().includes(val)) : [...products];
+            displayedLimit = 6;
             renderGrid();
         });
 
